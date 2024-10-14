@@ -1,8 +1,11 @@
 import { GetStaticPaths, GetStaticProps } from 'next'
+import { NextSeo } from 'next-seo'
+import { prisma } from '@/lib/prisma'
+import { capitalize } from '@/utils/capitalize'
+
+import ScheduleForm from './ScheduleForm'
 import { Avatar, Heading, Text } from '@munhoz-tech-ui/react'
 import { Container, UserHeader } from './styles'
-import { prisma } from '@/lib/prisma'
-import { capitalizeName } from '@/utils/capitalize-name'
 
 interface ScheduleProps {
   user: {
@@ -14,13 +17,21 @@ interface ScheduleProps {
 
 export default function Schedule({ user }: ScheduleProps) {
   return (
-    <Container>
-      <UserHeader>
-        <Avatar src={user.avatarUrl} />
-        <Heading>{capitalizeName(user.name)}</Heading>
-        <Text>{user.bio}</Text>
-      </UserHeader>
-    </Container>
+    <>
+      <NextSeo
+        title={`Agendar com ${capitalize(user.name)} | Sleek Calendar`}
+      />
+
+      <Container>
+        <UserHeader>
+          <Avatar src={user.avatarUrl} />
+          <Heading>{capitalize(user.name)}</Heading>
+          <Text>{user.bio}</Text>
+        </UserHeader>
+
+        <ScheduleForm />
+      </Container>
+    </>
   )
 }
 
