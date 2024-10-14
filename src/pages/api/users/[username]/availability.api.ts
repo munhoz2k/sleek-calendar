@@ -1,6 +1,9 @@
+import { NextApiRequest, NextApiResponse } from 'next'
 import { prisma } from '@/lib/prisma'
 import dayjs from 'dayjs'
-import { NextApiRequest, NextApiResponse } from 'next'
+import utc from 'dayjs/plugin/utc'
+
+dayjs.extend(utc)
 
 export default async function handler(
   req: NextApiRequest,
@@ -10,11 +13,13 @@ export default async function handler(
     return res.status(405).end()
   }
 
+  const { date, timeZoneOffSet } = req.query
   const username = String(req.query.username)
-  const { date } = req.query
 
   if (!date) {
     return res.status(400).json({ message: 'Date not provided!' })
+  } else if (!timeZoneOffSet) {
+    return res.status(400).json({ message: 'Timezone not provided!' })
   }
 
   const user = await prisma.user.findUnique({
@@ -33,6 +38,14 @@ export default async function handler(
   if (isPastDate) {
     return res.json({ possibleTimes: [], availableTimes: [] })
   }
+
+  const timeZoneOffSetInHours =
+    typeof timeZoneOffSet === 'string'
+      ? Number(timeZoneOffSet) / 60
+      : Number(timeZoneOffSet[0]) / 60
+
+  const referenceDateTimeZoneOffSetInHours =
+    referenceDate.toDate().getTimezoneOffset() / 60
 
   const userAvailability = await prisma.usersTimeIntervals.findFirst({
     where: {
@@ -66,18 +79,28 @@ export default async function handler(
     where: {
       user_id: user.id,
       date: {
-        gte: referenceDate.set('hour', startHour).toDate(),
-        lte: referenceDate.set('hour', endHour).toDate(),
+        gte: referenceDate
+          .set('hour', startHour)
+          .add(timeZoneOffSetInHours, 'hours')
+          .toDate(),
+        lte: referenceDate
+          .set('hour', endHour)
+          .add(timeZoneOffSetInHours, 'hours')
+          .toDate(),
       },
     },
   })
 
   const availableTimes = possibleTimes.filter((time) => {
     const isScheduled = scheduledTimes.some(
-      (scheduledTime) => scheduledTime.date.getHours() === time,
+      (scheduledTime) =>
+        scheduledTime.date.getUTCHours() - timeZoneOffSetInHours === time,
     )
 
-    const isTimeInPast = referenceDate.set('hour', time).isBefore(new Date())
+    const isTimeInPast = referenceDate
+      .set('hour', time)
+      .subtract(referenceDateTimeZoneOffSetInHours, 'hours')
+      .isBefore(new Date())
 
     return !isScheduled && !isTimeInPast
   })
