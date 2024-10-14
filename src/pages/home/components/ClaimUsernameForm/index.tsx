@@ -47,13 +47,17 @@ export function ClaimUsernameForm() {
           Reservar
           <ArrowRight />
         </Button>
-      </Form>
 
-      <FormAnnotation>
         <Text>
           {errors.username
             ? errors.username.message
             : 'Digite o nome de usuário desejado'}
+        </Text>
+      </Form>
+
+      <FormAnnotation>
+        <Text>
+          Já possui uma conta? <a href="/login">Fazer Login</a>
         </Text>
       </FormAnnotation>
     </>
