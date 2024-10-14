@@ -14,10 +14,6 @@ export function buildNextAuthOptions(
   res: NextApiResponse | NextPageContext['res'],
 ): NextAuthOptions {
   return {
-    pages: {
-      signIn: '/',
-    },
-
     adapter: PrismaAdapter(req, res),
 
     providers: [
@@ -26,6 +22,9 @@ export function buildNextAuthOptions(
         clientSecret: process.env.GOOGLE_CLIENT_SECRET ?? '',
         authorization: {
           params: {
+            prompt: 'consent',
+            access_type: 'offline',
+            response_type: 'code',
             scope: Object.values(scopes).join(' '),
           },
         },
@@ -35,7 +34,7 @@ export function buildNextAuthOptions(
             name: profile.name,
             email: profile.email,
             avatar_url: profile.picture,
-            username: '', // Need to be returned, but wont be used...
+            username: '', // Useless, but must return!
           }
         },
       }),
