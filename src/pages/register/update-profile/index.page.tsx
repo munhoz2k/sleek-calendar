@@ -1,7 +1,18 @@
+import { GetServerSideProps } from 'next'
+import { useRouter } from 'next/router'
+import { getServerSession } from 'next-auth'
 import { useSession } from 'next-auth/react'
-import { z } from 'zod'
+import { NextSeo } from 'next-seo'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { buildNextAuthOptions } from '@/pages/api/auth/[...nextauth].api'
+import { capitalize } from '@/utils/capitalize'
+import { api } from '@/lib/axios'
+
+import { FormAnnotation, ProfileBox } from './styles'
+import { Container, Header } from '../styles'
+import { ArrowRight } from 'phosphor-react'
 import {
   Avatar,
   Button,
@@ -10,15 +21,6 @@ import {
   Text,
   TextArea,
 } from '@munhoz-tech-ui/react'
-
-import { Container, Header } from '../styles'
-import { ArrowRight } from 'phosphor-react'
-import { FormAnnotation, ProfileBox } from './styles'
-import { GetServerSideProps } from 'next'
-import { getServerSession } from 'next-auth'
-import { buildNextAuthOptions } from '@/pages/api/auth/[...nextauth].api'
-import { api } from '@/lib/axios'
-import { useRouter } from 'next/router'
 
 const updateProfileSchema = z.object({
   bio: z.string(),
@@ -47,43 +49,48 @@ export default function UpdateProfile() {
   }
 
   return (
-    <Container>
-      <Header>
-        <Heading as="strong">Bem-vindo ao Ignite Call!</Heading>
+    <>
+      <NextSeo title="Atualize seu perfil | Sleek Calendar" noindex />
 
-        <Text>
-          Precisamos de algumas informações para criar seu perfil! Ah, você pode
-          editar essas informações depois.
-        </Text>
+      <Container>
+        <Header>
+          <Heading as="strong">Bem-vindo ao Ignite Call!</Heading>
 
-        <MultiStep size={4} currentStep={4} />
-      </Header>
+          <Text>
+            Precisamos de algumas informações para criar seu perfil! Ah, você
+            pode editar essas informações depois.
+          </Text>
 
-      <ProfileBox as="form" onSubmit={handleSubmit(handleUpdaateProfile)}>
-        <label>
-          <Text size="sm">Foto de perfil</Text>
-          <Avatar
-            src={session.data?.user.avatar_url}
-            alt={session.data?.user.name + 'avatar'}
-          />
-        </label>
+          <MultiStep size={4} currentStep={4} />
+        </Header>
 
-        <label>
-          <Text size="sm">Sobre você</Text>
+        <ProfileBox as="form" onSubmit={handleSubmit(handleUpdaateProfile)}>
+          <label>
+            <Avatar
+              src={session.data?.user.avatar_url}
+              alt={session.data?.user.name + 'avatar'}
+            />
+            <Text size="lg">{capitalize(String(session.data?.user.name))}</Text>
+          </label>
 
-          <TextArea placeholder="John Doe" {...register('bio')} />
+          <label>
+            <FormAnnotation size="sm">
+              Fale um pouco sobre você. Isto será exibido em sua página pessoal.
+            </FormAnnotation>
 
-          <FormAnnotation size="sm">
-            Fale um pouco sobre você. Isto será exibido em sua página pessoal.
-          </FormAnnotation>
-        </label>
+            <TextArea
+              placeholder="Atualmente trabalho com..."
+              {...register('bio')}
+            />
+          </label>
 
-        <Button type="submit" disabled={isSubmitting}>
-          Finalizar
-          <ArrowRight />
-        </Button>
-      </ProfileBox>
-    </Container>
+          <Button type="submit" disabled={isSubmitting}>
+            Finalizar
+            <ArrowRight />
+          </Button>
+        </ProfileBox>
+      </Container>
+    </>
   )
 }
 
