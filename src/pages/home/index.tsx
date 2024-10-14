@@ -1,35 +1,44 @@
-import Image from 'next/image'
-import { Heading, Text } from '@munhoz-tech-ui/react'
-
-import gridBg from '@/assets/grid-bg.png'
-import previewImage from '@/assets/app-preview.png'
-import { Container, Hero, Preview } from './styles'
+import { NextSeo } from 'next-seo'
 import { ClaimUsernameForm } from './components/ClaimUsernameForm'
+
+import { Heading, Text } from '@munhoz-tech-ui/react'
+import { Container, Hero, Preview } from './styles'
+import previewImage from '@/assets/app-preview.png'
+import gridBg from '@/assets/grid-bg.png'
+import Image from 'next/image'
 
 export function Home() {
   return (
-    <Container>
-      <Hero>
-        <Heading size="4xl">Agendamento descomplicado</Heading>
+    <>
+      <NextSeo
+        title="Descomplique sua agenda | Sleek Calendar"
+        description="Conecte seu calendário e permita que as pessoas marquem agendamentos
+            no seu tempo livre."
+      />
 
-        <Text size="xl">
-          Conecte seu calendário e permita que as pessoas marquem agendamentos
-          no seu tempo livre.
-        </Text>
+      <Container>
+        <Hero>
+          <Heading size="4xl">Agendamento descomplicado</Heading>
 
-        <ClaimUsernameForm />
+          <Text size="xl">
+            Conecte seu calendário e permita que as pessoas marquem agendamentos
+            no seu tempo livre.
+          </Text>
 
-        <Image src={gridBg} alt="Grade branca de fundo" priority />
-      </Hero>
-      <Preview>
-        <Image
-          src={previewImage}
-          alt="Pré-visualização do calendário"
-          height={400}
-          quality={100}
-          priority
-        />
-      </Preview>
-    </Container>
+          <ClaimUsernameForm />
+
+          <Image src={gridBg} alt="Grade branca de fundo" priority />
+        </Hero>
+        <Preview>
+          <Image
+            src={previewImage}
+            alt="Pré-visualização do calendário"
+            height={400}
+            quality={100}
+            priority
+          />
+        </Preview>
+      </Container>
+    </>
   )
 }
